@@ -29,12 +29,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-				.addFilter(corsConfig.corsFilter())
+				.addFilter(corsConfig.corsFilter())		// 이거 해줘야 CorsConfig의 corsFilter() 가 사용가능해진다!		// @CrossOrigin -> 인증이 없을때, 인증이 있을 때는 이것처럼 시큐리티 필터에 등록해주어야한다.
 				.csrf().disable()
-				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)	// 세션을 사용하지 않겠다는 뜻
 			.and()
-				.formLogin().disable()
-				.httpBasic().disable()
+				.formLogin().disable()	// 폼을 만들어서 하는 로그인 안쓸거임!
+				.httpBasic().disable()	// 기본적인 http 로그인 방식을 안쓸거임!
 				
 				.addFilter(new JwtAuthenticationFilter(authenticationManager()))
 				.addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository))
