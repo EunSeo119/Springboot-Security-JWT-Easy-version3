@@ -24,6 +24,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
+// 스프링 시큐리티에서 UsernamePasswordAuthenticationFilter 가 있음.
+// /login 요청해서 username, password 전송하면 (post)
+// UsernamePasswordAuthenticationFilter 동작을 함. -> but 지금 formLogin().disable() 했더니 작동을 안함 -> 이 JwtAuthenticationFilter 필터를 다시 security config에 등록해주어야함!(.addFilter(new JwtAuthenticationFilter(authenticationManager())) 해주면 됨)
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter{
 
@@ -31,6 +34,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	
 	// Authentication 객체 만들어서 리턴 => 의존 : AuthenticationManager
 	// 인증 요청시에 실행되는 함수 => /login
+	// /login 요청을 하면 (UsernamePasswordAuthenticationFilter 가 낚아채서 아래 함수가 자동 실행됨! 여기에서 id,pw를 db에서 확인해서) 로그인 시도를 위해서 실행되는 함수
+	// 1. username, password 받아서
+	// 2. 정상인지 로그인 시도를 해보는 거예요. authenticationManager 로 로그인 시도를 하면!!
+	// PrincipalDetailsService 가 호출 loadUserByUsername() 함수 실행됨. -> PrincipalDetails 가 return 됨
+	// 3. 그 PrincipalDetails를 세션에 담고 -> 굳이 세션이 담는 이유 : 권한(USER, MANAGER, ADMIN 같은) 관리 때문!! (세션이 값이 있어야만 권한 관리를 시큐리티가 해줌) -> 권한 관리를 안할거면 안 담아 줘도 됨!
+	// 4. 마지막으로 JWT 토큰을 만들어서 응답해주면 됨.
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {

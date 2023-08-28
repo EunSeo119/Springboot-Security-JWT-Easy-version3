@@ -57,10 +57,11 @@ public class RestApiController {
 		return userRepository.findAll();
 	}
 	
+	// 회원가입 로직
 	@PostMapping("join")
 	public String join(@RequestBody User user) {
 		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-		user.setRoles("ROLE_USER");
+		user.setRoles("ROLE_USER");		// 룰은 기본으로 설정. (ROLE_USER)
 		userRepository.save(user);
 		return "회원가입완료";
 	}
