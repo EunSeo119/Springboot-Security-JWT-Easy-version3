@@ -33,7 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				.csrf().disable()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)	// 세션을 사용하지 않겠다는 뜻
 			.and()
-				.formLogin().disable()	// 폼을 만들어서 하는 로그인 안쓸거임!
+				.formLogin().disable()	// 폼 태그 만들어서 로그인하는 거 안쓸거임!
 				.httpBasic().disable()	// 기본적인 http 로그인 방식을 안쓸거임!
 				
 				.addFilter(new JwtAuthenticationFilter(authenticationManager()))
