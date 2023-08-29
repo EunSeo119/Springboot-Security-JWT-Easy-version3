@@ -74,18 +74,29 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		// Tip: 인증 프로바이더의 디폴트 서비스는 UserDetailsService 타입
 		// Tip: 인증 프로바이더의 디폴트 암호화 방식은 BCryptPasswordEncoder
 		// 결론은 인증 프로바이더에게 알려줄 필요가 없음.
+		// PrincipalDetailsService의 loadUserByUsername() 함수가 실행된 후 정상이면 authentication이 리턴됨.
+		// DB에 있는 username과 password가 일치한다.
 		Authentication authentication = 
 				authenticationManager.authenticate(authenticationToken);
 		
+		// authentication 객체가 session 영역에 저장됨. => 로그인이 되었다는 뜻.
 		PrincipalDetails principalDetailis = (PrincipalDetails) authentication.getPrincipal();
-		System.out.println("Authentication : "+principalDetailis.getUser().getUsername());
+		System.out.println("로그인 완료됨 : "+principalDetailis.getUser().getUsername());	// 로그인이 정상적으로 되었다는 뜻.
+
+		// authentication 객체가 session 영역에 저장을 해야하고 그 방법이 return 해주면 됨.
+		// 리턴의 이유는 권한 관리를 security 가 대신 해주기 때문에 더 편하려고 하는 거임.
+		// 굳이 JWT 토큰을 사용하면서 세션을 만들 이유가 없음. 근데 단지 권한 처리때문에 session 넣어 줍니다.
 		return authentication;
 	}
 
 	// JWT Token 생성해서 response에 담아주기
+	// attemptAuthentication 실행 후 인증이 정상적으로 되었으면 successfulAuthentication 함수가 실행되요.
+	// JWT 토큰을 만들어서 request 요청한 사용자에게 JWT 토큰을 response 해주면 됨.
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authResult) throws IOException, ServletException {
+
+		System.out.println("successfulAuthentication 실행됨: 인증이 완료되었다는 뜻임.");
 		
 		PrincipalDetails principalDetailis = (PrincipalDetails) authResult.getPrincipal();
 		
