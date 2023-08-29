@@ -65,6 +65,26 @@ public class RestApiController {
 		userRepository.save(user);
 		return "회원가입완료";
 	}
+
+	// user, manager, admin 권한만 접근 가능
+	@GetMapping("/api/v1/user")
+	public String user(Authentication authentication) {
+		PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
+		System.out.println("authentication:"+principal.getUsername());	// 잘찍히나 확인 -> 얘가 null 이 뜨면 (강제로 만들어줬었는데)session이 안만들어진 것임
+		return "user";
+	}
+
+	// manager, admin 권한만 접근 가능
+	@GetMapping("/api/v1/manger")
+	public String manager() {
+		return "manager";
+	}
+
+	// admin 권한만 접근 가능
+	@GetMapping("/api/v1/admin")
+	public String admin() {
+		return "admin";
+	}
 	
 }
 
