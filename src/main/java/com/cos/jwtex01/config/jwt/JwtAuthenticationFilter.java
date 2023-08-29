@@ -80,8 +80,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 				authenticationManager.authenticate(authenticationToken);
 		
 		// authentication 객체가 session 영역에 저장됨. => 로그인이 되었다는 뜻.
-		PrincipalDetails principalDetailis = (PrincipalDetails) authentication.getPrincipal();
-		System.out.println("로그인 완료됨 : "+principalDetailis.getUser().getUsername());	// 로그인이 정상적으로 되었다는 뜻.
+		PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+		System.out.println("로그인 완료됨 : "+principalDetails.getUser().getUsername());	// 로그인이 정상적으로 되었다는 뜻.
 
 		// authentication 객체가 session 영역에 저장을 해야하고 그 방법이 return 해주면 됨.
 		// 리턴의 이유는 권한 관리를 security 가 대신 해주기 때문에 더 편하려고 하는 거임.
@@ -98,16 +98,18 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 		System.out.println("successfulAuthentication 실행됨: 인증이 완료되었다는 뜻임.");
 		
-		PrincipalDetails principalDetailis = (PrincipalDetails) authResult.getPrincipal();
+		PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
 		
+		// pom.xml의 java-jwt 를 이용해서 JWT.을 이용하여(빌더패턴), 그걸로 토큰을 만들어준다!
+		// RSA 방식은 아니구 Hash 암호 방식
 		String jwtToken = JWT.create()
-				.withSubject(principalDetailis.getUsername())
-				.withExpiresAt(new Date(System.currentTimeMillis()+JwtProperties.EXPIRATION_TIME))
-				.withClaim("id", principalDetailis.getUser().getId())
-				.withClaim("username", principalDetailis.getUser().getUsername())
-				.sign(Algorithm.HMAC512(JwtProperties.SECRET));
+				.withSubject("cos토큰")	// 토큰 이름 -> 크게 의미 x
+				.withExpiresAt(new Date(System.currentTimeMillis()+(60000*10)))	// 토큰이 언제까지 유효할지 결정(만료시간을 줌) -> 탈취 시 위험 감소 -> 이 코드에서 토큰 만료 시간 (현재시간 + 10분)
+				.withClaim("id", principalDetails.getUser().getId())	// withClaim 은 비공개 claim
+				.withClaim("username", principalDetails.getUser().getUsername())	// 사실 이건 넣을 필요없고 그냥 내가 넣고 싶은 key, value 값 넣으면 된당 -> 근데 이 id, username정도 넣어주는 거 좋다
+				.sign(Algorithm.HMAC512("cos"));		// 내 서버만 아는 고유한값..? -> 이걸로 sign?	// HMAC512 특징 : 시크릿값(여기서는 cos)을 가지고 있다 -> RSA 방식보다 이방식을 많이 쓴대서 씀
 		
-		response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX+jwtToken);
+		response.addHeader("Authorization", "Bearer "+jwtToken);
 	}
 	
 }
